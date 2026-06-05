@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# argements
+arg=$1
+
+# check if gevi us argements
+if [[ -z $arg ]];then
+	echo 'Argement Requaire!!!' >&2
+	echo './'$(ls | grep '00') ' <service>'
+	exit 1
+
+elif (( $# != 0 ));then
+	com=$(systemctl status $arg 2>/dev/null)
+	#check if name is coreec
+	if [[ $com ]] ;then
+	for i in $(systemctl status $arg);do
+		# if this service is runing
+		if [[ $i == '(running)'  ]] ;then
+			echo 'Status is  : Runing'
+			pid=$(ps -elf | grep $arg | awk '{print $4}' | uniq | head -n1)
+			echo 'PID        : '$pid
+			e_d=$(systemctl status $arg | grep -i load | awk '{print $4}'| sed 's/;//g')
+			if [[ $e_d == 'enabled' ]];then
+				echo 'Service Is : Enabled'
+			else
+				echo 'Service Is : Disabled'
+			fi
+		elif [[ $i == '(dead)' ]];then
+			echo 'Status is  : Stoped'
+			e_d=$(systemctl status $arg | grep -i load | awk '{print $4}'| sed 's/;//g')
+			if [[ $e_d == 'enabled' ]];then
+				echo 'Service Is : Enabled'
+			else
+				echo 'Service Is : Disabled'
+			fi
+		
+		fi
+	
+	done
+	else
+		echo 'service could not found' 
+	fi		
+		
+
+
+fi 
+
